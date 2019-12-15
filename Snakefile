@@ -3,7 +3,7 @@
 all_output_cols = ['X3CLGANDWORK', 'S3CLASSES', 'S3WORK', 'S3APPRENTICE', 'X4EVRAPPCLG', 'S3CLGAPPNUM']
 
 # extract output columns
-#   assign missing values
+# assign missing values
 rule output_extract:
     input: "data/HSLS_2016_v1_0_CSV_Datasets/hsls_16_student_v1_0.csv"
     output:

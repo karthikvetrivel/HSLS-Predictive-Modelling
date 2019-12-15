@@ -1,19 +1,28 @@
 import tensorflow as tf
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from matplotlib import pyplot as plt
 
-mnist = tf.keras.datasets.mnist
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
-x_train, x_test = x_train / 255.0, x_test / 255.0
 
-model = tf.keras.models.Sequential([
-  tf.keras.layers.Flatten(input_shape=(28, 28)),
-  tf.keras.layers.Dense(128, activation='relu'),
-  tf.keras.layers.Dropout(0.2),
-  tf.keras.layers.Dense(10, activation='softmax')
-])
+baseline_features = pd.read_csv("data/processed/baseline_features.csv", index_col=0)
+output_columns = pd.read_csv("data/processed/output_columns.csv", index_col=0) 
 
-model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
-model.fit(x_train, y_train, epochs=5)
+baseline_features.head()
+output_columns.head()
 
-model.evaluate(x_test,  y_test, verbose=2)c
+# Merge into a baseline and output into a single column
+df = pd.merge(baseline_features, output_columns, on='STU_ID')
+
+
+df
+# Remove rows w/ NaN values in the output column
+df = df.dropna(axis=0, subset=output_columns.columns)
+df
+
+baseline_features_final = df[output_columns.columns]
+baseline_features_final.drop(['STU_ID'], axis=1)
+output_columns.final = df[baseline_features.columns] 
+output_columns.final.drop(['STU_ID'],axis=1)
+
+output_columns.final.head()
+

@@ -2,9 +2,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as mpl
 
-student_data = pd.read_csv("data/HSLS_2016_v1_0_CSV_Datasets/hsls_16_student_v1_0.csv");
+student_data = pd.read_csv("data/HSLS_2016_v1_0_CSV_Datasets/hsls_16_student_v1_0.csv", na_values=[-9, -8, -5, -7, -4, -3])
 student_data.head()
-
 
 output_col = student_data[['X3CLGANDWORK', 'S3CLASSES', 'S3WORK'
 , 'S3APPRENTICE', 'X4EVRAPPCLG', 'S3CLGAPPNUM', 'S4EVERAPPLY', 'S4CHOICEAPP']]
