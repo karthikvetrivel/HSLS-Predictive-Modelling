@@ -2,9 +2,10 @@ import tensorflow as tf
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
-import argparse
-
-
+# import argparse
+# parser = argparse.ArgumentParser()
+# parser.add_argument('--output_col', type=str, help='name of output column', default=None)
+# args = parser.parse_args()
 baseline_features = pd.read_csv("data/processed/baseline_features.csv", index_col=0)
 output_columns = pd.read_csv("data/processed/output_columns.csv", index_col=0) 
 
@@ -14,7 +15,7 @@ baseline_features.head()
 output_columns.head()
 
 # Specific column to be tested on.
-main_output_column = output_columns[['S3CLASSES', 'STU_ID']]
+main_output_column = output_columns[["S3CLASSES", "STU_ID"]]
 
 # Merge into a baseline and output into a single column
 df = pd.merge(baseline_features, main_output_column, on='STU_ID')
@@ -23,21 +24,21 @@ df = pd.merge(baseline_features, main_output_column, on='STU_ID')
 df = df.dropna(axis=0, subset=main_output_column.columns)
 
 # Create the x and y columns
-baseline_features_final = df[main_output_column.columns]
+baseline_features_final = df[baseline_features.columns]
 baseline_features_final = baseline_features_final.drop(['STU_ID'], axis=1)
-output_columns_final = df[baseline_features.columns] 
+output_columns_final = df[main_output_column.columns] 
 output_columns_final = output_columns_final.drop(['STU_ID'],axis=1)
+
+# Feature Scaling
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+output_columns_final = sc.fit_transform(output_columns_final)
 
 # Splitting the data set into the Training and Testing set
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(baseline_features_final, output_columns_final, test_size = 0.2)
 
-# Feature Scaling
-from sklearn.preprocessing import StandardScaler
-sc = StandardScaler()
-X_train = sc.fit_transform(X_train)
-X_test = sc.transform(X_test)
 
 # Importing the Keras libraries and packages
 import keras
@@ -47,8 +48,12 @@ from keras.layers import Dense
 # Initialising the ANN
 classifier = Sequential()
 
+# import pdb 
+# pdb.set_trace()
+
+import numpy as np
 # Adding the input layer and the first hidden layer
-classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu', input_dim = X_train.shape[1]))
+classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu'))
 
 # Adding the second hidden layer
 classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu'))
@@ -57,12 +62,16 @@ classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu'))
 classifier.add(Dense(output_dim = 1, init = 'uniform', activation = 'sigmoid'))
 
 # Compiling the ANN
-classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+classifier.compile(optimizer = 'adam', loss = 'mean_squared_error', metrics = ['accuracy'])
+
+# TO-DO: Cross-validation over hyperparameters, understand the X_train scaler, graph of the error (plot)
+# Error on validation set vs error on the training set (plot)
+# Snakefile, must repeat multiple output column -> set workflow
 
 
 
 # Fitting the ANN to the Training set
-classifier.fit(X_train, y_train.values.tolist(), batch_size = 10, nb_epoch = 300)
+classifier.fit(X_train.values, y_train, batch_size = 10, nb_epoch = 300)
 
 # Part 3 - Making the predictions and evaluating the model
 
