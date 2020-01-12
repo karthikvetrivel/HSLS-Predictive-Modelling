@@ -62,12 +62,12 @@ classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu'))
 classifier.add(Dense(output_dim = 1, init = 'uniform', activation = 'sigmoid'))
 
 # Compiling the ANN
-classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+classifier.compile(optimizer = 'SGD', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
 # TO-DO: Cross-validation over hyperparameters, understand the X_train scaler, graph of the error (plot)
 # Error on validation set vs error on the training set (plot)
 # Snakefile, must repeat multiple output column -> set workflow
-
+# PCA or Random Forest?
 
 
 # Fitting the ANN to the Training set
