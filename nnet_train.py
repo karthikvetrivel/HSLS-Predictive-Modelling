@@ -62,7 +62,7 @@ classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu'))
 classifier.add(Dense(output_dim = 1, init = 'uniform', activation = 'sigmoid'))
 
 # Compiling the ANN
-classifier.compile(optimizer = 'adam', loss = 'mean_squared_error', metrics = ['accuracy'])
+classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
 # TO-DO: Cross-validation over hyperparameters, understand the X_train scaler, graph of the error (plot)
 # Error on validation set vs error on the training set (plot)
@@ -71,7 +71,7 @@ classifier.compile(optimizer = 'adam', loss = 'mean_squared_error', metrics = ['
 
 
 # Fitting the ANN to the Training set
-classifier.fit(X_train.values, y_train, batch_size = 10, nb_epoch = 300)
+classifier.fit(X_train.values, y_train, batch_size = 10, nb_epoch = 30000)
 
 # Part 3 - Making the predictions and evaluating the model
 
