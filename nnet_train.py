@@ -38,9 +38,11 @@ output_columns_final = sc.fit_transform(output_columns_final)
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(baseline_features_final, output_columns_final, test_size = 0.2)
+X_train = X_train.head(100)
+X_test = X_test.head(100)
+y_train = y_train[0:100]
+y_test = y_test[0:100]
 
-
-# Importing the Keras libraries and packages
 import keras
 from keras.models import Sequential
 from keras.layers import Dense
@@ -53,10 +55,10 @@ classifier = Sequential()
 
 import numpy as np
 # Adding the input layer and the first hidden layer
-classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu'))
+classifier.add(Dense(output_dim = 20, init = 'uniform', activation = 'relu'))
 
 # Adding the second hidden layer
-classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu'))
+classifier.add(Dense(output_dim = 8, init = 'uniform', activation = 'relu'))
 
 # Adding the output layer
 classifier.add(Dense(output_dim = 1, init = 'uniform', activation = 'sigmoid'))
@@ -69,9 +71,8 @@ classifier.compile(optimizer = 'SGD', loss = 'binary_crossentropy', metrics = ['
 # Snakefile, must repeat multiple output column -> set workflow
 # PCA or Random Forest?
 
-
 # Fitting the ANN to the Training set
-classifier.fit(X_train.values, y_train, batch_size = 10, nb_epoch = 30000)
+classifier.fit(X_train.values, y_train, batch_size = 100, nb_epoch = 30000)
 
 # Part 3 - Making the predictions and evaluating the model
 
