@@ -2,10 +2,9 @@ import tensorflow as tf
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
-# import argparse
-# parser = argparse.ArgumentParser()
-# parser.add_argument('--output_col', type=str, help='name of output column', default=None)
-# args = parser.parse_args()
+import numpy as np
+
+
 baseline_features = pd.read_csv("data/processed/baseline_features.csv", index_col=0)
 output_columns = pd.read_csv("data/processed/output_columns.csv", index_col=0) 
 
@@ -29,57 +28,42 @@ baseline_features_final = baseline_features_final.drop(['STU_ID'], axis=1)
 output_columns_final = df[main_output_column.columns] 
 output_columns_final = output_columns_final.drop(['STU_ID'],axis=1)
 
-# Feature Scaling
-from sklearn.preprocessing import StandardScaler
-sc = StandardScaler()
-output_columns_final = sc.fit_transform(output_columns_final)
-
 # Splitting the data set into the Training and Testing set
-import tensorflow as tf
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(baseline_features_final, output_columns_final, test_size = 0.2)
 X_train = X_train.head(100)
 X_test = X_test.head(100)
-y_train = y_train[0:100]
-y_test = y_test[0:100]
+y_train = y_train.astype(int)[0:100]
+y_test = y_test.astype(int)[0:100]
 
-import keras
-from keras.models import Sequential
-from keras.layers import Dense
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+X_train_scaled = scaler.fit_transform(X_train.astype(np.float64))
+X_test_scaled = scaler.fit_transform(X_test.astype(np.float64))
 
-# Initialising the ANN
-classifier = Sequential()
+feature_columns = [tf.feature_column.numeric_column('x', shape=X_train_scaled.shape[1:])]		
 
-# import pdb 
-# pdb.set_trace()
+estimator = tf.estimator.DNNClassifier(
+    feature_columns=feature_columns,
+    hidden_units=[300, 100], 
+    n_classes=10, 
+    model_dir = None)
 
-import numpy as np
-# Adding the input layer and the first hidden layer
-classifier.add(Dense(output_dim = 20, init = 'uniform', activation = 'relu'))
 
-# Adding the second hidden layer
-classifier.add(Dense(output_dim = 8, init = 'uniform', activation = 'relu'))
+train_input = tf.compat.v1.estimator.inputs.numpy_input_fn(
+    x={"x": X_train_scaled},
+    y=y_train.values,
+    batch_size=50,
+    shuffle=False,
+    num_epochs=None)
 
-# Adding the output layer
-classifier.add(Dense(output_dim = 1, init = 'uniform', activation = 'sigmoid'))
+estimator.train(input_fn = train_input, steps=1000) 
 
-# Compiling the ANN
-classifier.compile(optimizer = 'SGD', loss = 'binary_crossentropy', metrics = ['accuracy'])
 
-# TO-DO: Cross-validation over hyperparameters, understand the X_train scaler, graph of the error (plot)
-# Error on validation set vs error on the training set (plot)
-# Snakefile, must repeat multiple output column -> set workflow
-# PCA or Random Forest?
-
-# Fitting the ANN to the Training set
-classifier.fit(X_train.values, y_train, batch_size = 100, nb_epoch = 30000)
-
-# Part 3 - Making the predictions and evaluating the model
-
-# Predicting the Test set results
-y_pred = classifier.predict(X_test)
-y_pred = (y_pred > 0.5)
-
-# Making the Confusion Matrix
-from sklearn.metrics import confusion_matrix
-cm = confusion_matrix(y_test, y_pred)
+eval_input = tf.compat.v1.estimator.inputs.numpy_input_fn(
+    x={"x": X_test_scaled},
+    y=y_test.values, 
+    shuffle=False,
+    batch_size=X_test_scaled.shape[0],
+    num_epochs=1)
+estimator.evaluate(eval_input,steps=None) 
