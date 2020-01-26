@@ -31,10 +31,10 @@ output_columns_final = output_columns_final.drop(['STU_ID'],axis=1)
 # Splitting the data set into the Training and Testing set
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(baseline_features_final, output_columns_final, test_size = 0.2)
-X_train = X_train.head(100)
-X_test = X_test.head(100)
-y_train = y_train.astype(int)[0:100]
-y_test = y_test.astype(int)[0:100]
+X_train = X_train.head(2000)
+X_test = X_test.head(2000)
+y_train = y_train.astype(int)[0:2000]
+y_test = y_test.astype(int)[0:2000]
 
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
@@ -45,10 +45,14 @@ feature_columns = [tf.feature_column.numeric_column('x', shape=X_train_scaled.sh
 
 estimator = tf.estimator.DNNClassifier(
     feature_columns=feature_columns,
-    hidden_units=[300, 100], 
-    n_classes=10, 
+    hidden_units=[300, 100],
+    dropout=0.3, 
+    n_classes = 10,
+    optimizer=tf.keras.optimizers.Adam(
+        learning_rate=0.001,
+        name='Adam'
+    ),
     model_dir = None)
-
 
 train_input = tf.compat.v1.estimator.inputs.numpy_input_fn(
     x={"x": X_train_scaled},
@@ -57,7 +61,7 @@ train_input = tf.compat.v1.estimator.inputs.numpy_input_fn(
     shuffle=False,
     num_epochs=None)
 
-estimator.train(input_fn = train_input, steps=1000) 
+estimator.train(input_fn = train_input, steps=5000)
 
 
 eval_input = tf.compat.v1.estimator.inputs.numpy_input_fn(
