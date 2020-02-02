@@ -28,6 +28,8 @@ baseline_features_final = baseline_features_final.drop(['STU_ID'], axis=1)
 output_columns_final = df[main_output_column.columns] 
 output_columns_final = output_columns_final.drop(['STU_ID'],axis=1)
 
+output_columns_final = output_columns_final.astype(int)-1 
+
 # Splitting the data set into the Training and Testing set
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(baseline_features_final, output_columns_final, test_size = 0.2)
@@ -39,15 +41,15 @@ y_test = y_test.astype(int)[0:2000]
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
 X_train_scaled = scaler.fit_transform(X_train.astype(np.float64))
-X_test_scaled = scaler.fit_transform(X_test.astype(np.float64))
+X_test_scaled = scaler.fit_transform(X_test.astype(np.float64)) 
 
 feature_columns = [tf.feature_column.numeric_column('x', shape=X_train_scaled.shape[1:])]		
 
 estimator = tf.estimator.DNNClassifier(
     feature_columns=feature_columns,
-    hidden_units=[300, 100],
+    hidden_units=[500, 100, 20, 10, 3],
     dropout=0.3, 
-    n_classes = 10,
+    n_classes = 3,
     optimizer=tf.keras.optimizers.Adam(
         learning_rate=0.001,
         name='Adam'
