@@ -18,4 +18,4 @@ output_col
 df = output_col.isnull().sum() 
 df.to_csv("figures/output_extract_missingness_per_output.csv")
 
-output_col.to_csv("data/processed/output_columns.csv")
+output_col.to_csv("data/processed/output_columns.csv", index=False)
