@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 student_data = pd.read_csv(
     "data/HSLS_2016_v1_0_CSV_Datasets/hsls_16_student_v1_0.csv", na_values=[-9, -8, -5, -7, -4, -3])
@@ -30,6 +32,12 @@ updated_predictor_col = X.fillna(
     X.median())
 updated_predictor_col.head()
 
+fig, ax = plt.subplots(figsize=(10, 6.7))
+sns.set_style('whitegrid')
+sns.countplot(x='X1SEX', data=X, palette="mako")
+sns.countplot(x='X1RACE', data=X, palette="mako")
+
+X.columns
 
 # Export to CSV file
 updated_predictor_col.to_csv("data/processed/baseline_features.csv", index=False)
